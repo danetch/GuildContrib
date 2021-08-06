@@ -33,7 +33,7 @@ local function getRankValues()
     -- 
 end
 local function showSubscriptionCreationPanel()
-
+    
 
 local function createOptions()
     local opt = {
