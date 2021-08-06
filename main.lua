@@ -65,4 +65,5 @@ local bcHelper = LibStub("BCHelper-1.0"):withSha(sha)
 -- create the user interface that tells you what you have contributed this month, and what is the minimum contribution
 -- Make it a rolling month upon completion of a call i.e if i don't complete a call 
 -- create the officers interface to make a new call, and validate it.
--- create the interface to show who contributed to which call. (a grid like output probably)
+-- create the interface to show who contributed to which call. (a grid like output probably).
+end
