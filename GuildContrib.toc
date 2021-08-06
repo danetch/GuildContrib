@@ -1,0 +1,7 @@
+## Interface: 90001
+## Title: Guild Contributions Manager
+## Author: Lofo
+## Version: 0.1
+## SavedVariables: GuildContribDB
+embeds.xml
+main.lua
