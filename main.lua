@@ -29,8 +29,12 @@ function GuildContrib:OnDisable()
     -- Called when the addon is disabled
 end
 local function getRankValues()
-    
+    -- GET the guild ranks, then decide if the addon wielder is an officer rank <=1
+    -- 
 end
+local function showSubscriptionCreationPanel()
+
+
 local function createOptions()
     local opt = {
         name = "Guild Contribution Manager",
@@ -54,16 +58,8 @@ local function createOptions()
         }
     return opt
 end
-
-
-
-
-
 local sha = LibStub("Sha2-9.0")
 local bcHelper = LibStub("BCHelper-1.0"):withSha(sha)
-
-
-
 
 -- Next is : create the config menu where you can set the appropriate items to be proposed.
 -- create the user interface that tells you what you have contributed this month, and what is the minimum contribution
