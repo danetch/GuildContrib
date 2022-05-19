@@ -58,8 +58,8 @@ local function createOptions()
         }
     return opt
 end
-local sha = LibStub("Sha2-9.0")
-local bcHelper = LibStub("BCHelper-1.0"):withSha(sha)
+local encryptor = LibStub("Sha2-1.0")
+local BCHelper = LibStub("BCHelper-1.0"):withEncryptor(encryptor)
 
 -- Next is : create the config menu where you can set the appropriate items to be proposed.
 -- create the user interface that tells you what you have contributed this month, and what is the minimum contribution
