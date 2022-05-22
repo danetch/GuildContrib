@@ -33,7 +33,7 @@ local function getRankValues()
     -- 
 end
 local function showSubscriptionCreationPanel()
-    
+end   
 
 local function createOptions()
     local opt = {
@@ -58,12 +58,30 @@ local function createOptions()
         }
     return opt
 end
-local encryptor = LibStub("Sha2-1.0")
-local BCHelper = LibStub("BCHelper-1.0").withEncryptor(encryptor)
 
--- Next is : create the config menu where you can set the appropriate items to be proposed.
--- create the user interface that tells you what you have contributed this month, and what is the minimum contribution
--- Make it a rolling month upon completion of a call i.e if i don't complete a call 
--- create the officers interface to make a new call, and validate it.
--- create the interface to show who contributed to which call. (a grid like output probably).
-end
+local BCHelper = LibStub("BCHelper-1.0")
+
+
+--QuickSpec
+
+--Players can click on a button to contribute for the current timespan, when they get to the guild bank
+--Players can see at a glance their contribution status for the current timespan.
+--Players can click a button to see a window with players in y axis, timespans on x axis, and contributions.
+--A timespan is configured by the guildmaster
+--Players have to make the deposit on a deposit only tab, unless rank < X.
+--each deposit is a transaction in a ledger
+--ledger is a simplistic blockchain. 
+--We use ECC : PLC BOX.lua + sha2.
+--User enters a password that will be encrypted using his pair of keys :
+--Public key is scalarmult(secret,base). Base is random 32 bytes. Secret is NOT-SO-RANDOM 32 Bytes they are the
+-- Using this allow for safe keeping of password
+-- Base is 9 in EC 22519. Then it is "just" scalar multiplications.
+-- the id is: to generate a secret, as for a password, password is hashed. hash is used as a nonce
+
+
+
+
+
+
+
+

@@ -1,5 +1,6 @@
 ------ define transactions ---
-local encryptor
+local encryptor = LibStub("Sha2-1.0")
+
 
 local Transaction = {
     id = 0,
@@ -38,8 +39,8 @@ local Helper, oldMinor = LibStub:NewLibrary(Major,Minor)
 if not Helper then return end
 
 -- init blockchain, and encryptor
-local function Helper:initialize(encrypter)
-    encryptor = encrypter
+local function Helper:initialize()
+    if not encryptor return end
     local presenceID, battleTag, toonID, currentBroadcast, bnetAFK, bnetDND, isRIDEnabled  = BNGetInfo()
 end
 -- decrypt ledger and return it as a nice table
