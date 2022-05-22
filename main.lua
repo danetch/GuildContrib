@@ -67,7 +67,7 @@ function GuildContrib:OnCommReceived(prefix, message, distribution, sender)
     -- process the incomming message
     if prefix == mPrefixLedgerVersion then
         -- broadcast your LedgerVersion    
-        GuildContrib:SendCommMessage(GuildContrib.db.LedgerVersion)
+        GuildContrib:SendCommMessage(GuildContrib.db.ledger.version)
 end
 -- process the event "nameofevent"
 --function GuildContrib:NAME_OF_EVENT()
@@ -84,12 +84,13 @@ function GuildContrib:OnInitialize()
     -- choisir 
     LibStub("AceConfig-3.0"):RegisterOptionsTable("Guild Contribution Manager", createOptions(), {"gcm"})
     options.var.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+    BCHelper.OnInitialize(self.db)
     -- send ledger version to the guild addon channel
-    GuildContrib:SendCommMessage(mPrefix, GuildContrib.db.LedgerVersion, "GUILD")
+    GuildContrib:SendCommMessage(mPrefix, GuildContrib.db.ledger.version, "GUILD")
 end
 
 local BCHelper = LibStub("BCHelper-1.0")
-
+BCHelper.OnInitialize(GuildContrib.db)
 
 --QuickSpec
 

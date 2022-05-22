@@ -1,7 +1,7 @@
 ------ define transactions ---
 local encryptor = LibStub("Sha2-1.0")
-
-
+local db
+local ledger
 local Transaction = {
     id = 0,
     q = 0,
@@ -39,14 +39,23 @@ local Helper, oldMinor = LibStub:NewLibrary(Major,Minor)
 if not Helper then return end
 
 -- init blockchain, and encryptor
-local function Helper:initialize()
-    if not encryptor return end
+local function Helper:initialize(database)
+    if not encryptor then return end
+    if not database then return end
     local presenceID, battleTag, toonID, currentBroadcast, bnetAFK, bnetDND, isRIDEnabled  = BNGetInfo()
+    db = database
+    
 end
 -- decrypt ledger and return it as a nice table
 local function decryptLedger(EncryptedLedger)
-    local ledger = {}
-    return ledger
+    
+    -- the goal is to be only able to read the item by decrypting each transaction using the public key of the owner.
+    -- begets the question : how to store the thingy - probably a lua table?
+    -- ledger probably gets a transaction id per transaction, agreed upon by ranks or consensus.
+    -- ledger.version = integer.
+    -- ledger
+
+    return ledger 
 end
 
 
