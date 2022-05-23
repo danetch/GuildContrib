@@ -5603,8 +5603,19 @@ local function blake3_derive_key(key_material, context_string, derived_key_size_
 end
 
 
+-- changing here the way the module work to enable using it in wow
+-- return sha
+local MAJOR, MINOR = "Crypto-1.0", 1
+local Crypto, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
-local sha = {
+if not Crypto then return end
+-- means we must use the object "handler"
+
+-- o l d
+-- local sha = 
+-- return sha
+
+Crypto.handler = {
    md5        = md5,                                                                                                                   -- MD5
    sha1       = sha1,                                                                                                                  -- SHA-1
    -- SHA-2 hash functions:
@@ -5671,11 +5682,4 @@ block_size_for_HMAC = {
    [sha.sha3_512]   =  72,  -- (1600 - 2 * 512) / 8
 }
 
--- changing here the way the module work to enable using it in wow
--- return sha
-local MAJOR, MINOR = "Sha2-1.0", 1
-local Encryptor, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
-if not Encryptor then return end
--- means we must use the object "handler"
-Encryptor.handler = sha

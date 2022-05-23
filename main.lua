@@ -89,21 +89,26 @@ function GuildContrib:OnInitialize()
     GuildContrib:SendCommMessage(mPrefix, GuildContrib.db.ledger.version, "GUILD")
 end
 
-local BCHelper = LibStub("BCHelper-1.0")
-BCHelper.OnInitialize(GuildContrib.db)
+local Accountant = LibStub("Accountant-1.0")
+Accountant.OnInitialize(GuildContrib.db)
 
 --QuickSpec
 
---Players can click on a button to contribute for the current timespan, when they get to the guild bank
---Players can see at a glance their contribution status for the current timespan.
---Players can click a button to see a window with players in y axis, timespans on x axis, and contributions.
---A timespan is configured by the guildmaster
---Players have to make the deposit on a deposit only tab, unless rank < X.
---each deposit is a transaction in a ledger
---ledger is a simplistic blockchain. 
---We use ECC : PLC BOX.lua + sha2.
---User enters a password that will be encrypted using his pair of keys :
---Public key is scalarmult(secret,base). Base is random 32 bytes. Secret is NOT-SO-RANDOM 32 Bytes they are the
--- Using this allow for safe keeping of password
--- Base is 9 in EC 22519. Then it is "just" scalar multiplications.
--- the id is: to generate a secret, as for a password, password is hashed. hash is used as a nonce
+-- Players can click on a button to contribute for the current timespan, when they get to the guild bank
+-- Players can see at a glance their contribution status for the current timespan.
+-- Players can click a button to see a window with players in y axis, timespans on x axis, and contributions.
+-- A timespan is configured by the guildmaster
+-- Players have to make the deposit on a deposit only tab, unless rank < X.
+-- each deposit is a transaction in a ledger
+-- the db is a simplistic blockchain / accountant is the ledger handler
+-- We use ECC : PLC EC25519 /  Base is 9 in EC 22519. Then it is "just" scalar multiplications. https://github.com/philanc/plc/blob/master/plc/ec25519.lua
+        -- generate a 32 bytes random string : this is our secretkey (which is also a 256 bit number :))))
+        -- scalarmultiply the base to get the public key.
+        -- use private key to sign transactions
+        -- show public key in transaction to decrypt them
+        -- have the previous transaction signature within the transaction parameters.
+
+-- Using this allows for safe keeping of password
+-- 
+-- 
+-- credits are due to https://github.com/Egor-Skriptunoff/pure_lua_SHA2
