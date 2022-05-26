@@ -1,10 +1,6 @@
 -- this is the library that takes care of the ledgers.
--- 
-
-
-
-
------- define transactions ---
+-- it decrypts them, it sorts which one we will keep
+-- the crypto library is the thing that does Crypto.
 local encryptor = LibStub("Crypto-1.0")
 local db
 local ledger

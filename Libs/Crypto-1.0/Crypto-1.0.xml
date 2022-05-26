@@ -1,5 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-	<Script file="crypto.lua"/>
-	<Script file="ec22519.lua"/>
+	<Script file="Purelua-bitwise.lua"/>
+    <Script file="Ec22519.lua"/>
+	<Script file="Crypto.lua"/>
+	
 </Ui>

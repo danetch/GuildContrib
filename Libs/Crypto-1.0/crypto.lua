@@ -54,7 +54,11 @@
 --     2     2018-10-07   Decreased module loading time in Lua 5.1 implementation branch (thanks to Peter Melnichenko for giving a hint)
 --     1     2018-10-06   First release (only SHA-2 functions)
 -----------------------------------------------------------------------------
-
+------- Adapting to use in wow environment -----------------
+local MAJOR, MINOR = "Crypto-1.0", 1
+local Crypto, oldMinor = LibStub:NewLibrary(MAJOR, MINOR)
+if not Crypto then return end
+--------------------------------------------------------------
 
 local print_debug_messages = false  -- set to true to view some messages about your system's abilities and implementation branch chosen for your system
 
@@ -5602,71 +5606,6 @@ local function blake3_derive_key(key_material, context_string, derived_key_size_
    return blake3(key_material, nil, derived_key_size_in_bytes, 64, K)  -- flag:DERIVE_KEY_MATERIAL
 end
 
-
--- changing here the way the module work to enable using it in wow
--- return sha
-local MAJOR, MINOR = "Crypto-1.0", 1
-local Crypto, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
-
-if not Crypto then return end
--- means we must use the object "handler"
-
--- o l d
--- local sha = 
--- return sha
-
-Crypto.handler = {
-   md5        = md5,                                                                                                                   -- MD5
-   sha1       = sha1,                                                                                                                  -- SHA-1
-   -- SHA-2 hash functions:
-   sha224     = function (message)                       return sha256ext(224, message)                                           end, -- SHA-224
-   sha256     = function (message)                       return sha256ext(256, message)                                           end, -- SHA-256
-   sha512_224 = function (message)                       return sha512ext(224, message)                                           end, -- SHA-512/224
-   sha512_256 = function (message)                       return sha512ext(256, message)                                           end, -- SHA-512/256
-   sha384     = function (message)                       return sha512ext(384, message)                                           end, -- SHA-384
-   sha512     = function (message)                       return sha512ext(512, message)                                           end, -- SHA-512
-   -- SHA-3 hash functions:
-   sha3_224   = function (message)                       return keccak((1600 - 2 * 224) / 8, 224 / 8, false, message)             end, -- SHA3-224
-   sha3_256   = function (message)                       return keccak((1600 - 2 * 256) / 8, 256 / 8, false, message)             end, -- SHA3-256
-   sha3_384   = function (message)                       return keccak((1600 - 2 * 384) / 8, 384 / 8, false, message)             end, -- SHA3-384
-   sha3_512   = function (message)                       return keccak((1600 - 2 * 512) / 8, 512 / 8, false, message)             end, -- SHA3-512
-   shake128   = function (digest_size_in_bytes, message) return keccak((1600 - 2 * 128) / 8, digest_size_in_bytes, true, message) end, -- SHAKE128
-   shake256   = function (digest_size_in_bytes, message) return keccak((1600 - 2 * 256) / 8, digest_size_in_bytes, true, message) end, -- SHAKE256
-   -- HMAC:
-   hmac       = hmac,  -- HMAC(hash_func, key, message) is applicable to any hash function from this module except SHAKE* and BLAKE*
-   -- misc utilities:
-   hex_to_bin    = hex_to_bin,     -- converts hexadecimal representation to binary string
-   bin_to_hex    = bin_to_hex,     -- converts binary string to hexadecimal representation
-   base64_to_bin = base64_to_bin,  -- converts base64 representation to binary string
-   bin_to_base64 = bin_to_base64,  -- converts binary string to base64 representation
-   -- old style names for backward compatibility:
-   hex2bin       = hex_to_bin,
-   bin2hex       = bin_to_hex,
-   base642bin    = base64_to_bin,
-   bin2base64    = bin_to_base64,
-   -- BLAKE2 hash functions:
-   blake2b  = blake2b,   -- BLAKE2b (message, key, salt, digest_size_in_bytes)
-   blake2s  = blake2s,   -- BLAKE2s (message, key, salt, digest_size_in_bytes)
-   blake2bp = blake2bp,  -- BLAKE2bp(message, key, salt, digest_size_in_bytes)
-   blake2sp = blake2sp,  -- BLAKE2sp(message, key, salt, digest_size_in_bytes)
-   blake2xb = blake2xb,  -- BLAKE2Xb(digest_size_in_bytes, message, key, salt)
-   blake2xs = blake2xs,  -- BLAKE2Xs(digest_size_in_bytes, message, key, salt)
-   -- BLAKE2 aliases:
-   blake2      = blake2b,
-   blake2b_160 = function (message, key, salt) return blake2b(message, key, salt, 20) end, -- BLAKE2b-160
-   blake2b_256 = function (message, key, salt) return blake2b(message, key, salt, 32) end, -- BLAKE2b-256
-   blake2b_384 = function (message, key, salt) return blake2b(message, key, salt, 48) end, -- BLAKE2b-384
-   blake2b_512 = blake2b,                                                      -- 64       -- BLAKE2b-512
-   blake2s_128 = function (message, key, salt) return blake2s(message, key, salt, 16) end, -- BLAKE2s-128
-   blake2s_160 = function (message, key, salt) return blake2s(message, key, salt, 20) end, -- BLAKE2s-160
-   blake2s_224 = function (message, key, salt) return blake2s(message, key, salt, 28) end, -- BLAKE2s-224
-   blake2s_256 = blake2s,                                                      -- 32       -- BLAKE2s-256
-   -- BLAKE3 hash function
-   blake3            = blake3,             -- BLAKE3    (message, key, digest_size_in_bytes)
-   blake3_derive_key = blake3_derive_key,  -- BLAKE3_KDF(key_material, context_string, derived_key_size_in_bytes)
-}
-
-
 block_size_for_HMAC = {
    [sha.md5]        =  64,
    [sha.sha1]       =  64,
@@ -5681,5 +5620,54 @@ block_size_for_HMAC = {
    [sha.sha3_384]   = 104,  -- (1600 - 2 * 384) / 8
    [sha.sha3_512]   =  72,  -- (1600 - 2 * 512) / 8
 }
+-- changing here the way the module work to enable using it in wow
+-- return sha
 
-
+Crypto.md5        = md5                                                                                                                   -- MD5
+Crypto.sha1       = sha1                                                                                                                  -- SHA-1
+-- SHA-2 hash functions:
+Crypto.sha224     = function (message)                       return sha256ext(224, message)                                           end -- SHA-224
+Crypto.sha256     = function (message)                       return sha256ext(256, message)                                           end -- SHA-256
+Crypto.sha512_224 = function (message)                       return sha512ext(224, message)                                           end -- SHA-512/224
+Crypto.sha512_256 = function (message)                       return sha512ext(256, message)                                           end -- SHA-512/256
+Crypto.sha384     = function (message)                       return sha512ext(384, message)                                           end -- SHA-384
+Crypto.sha512     = function (message)                       return sha512ext(512, message)                                           end -- SHA-512
+-- SHA-3 hash functions:
+Crypto.sha3_224   = function (message)                       return keccak((1600 - 2 * 224) / 8, 224 / 8, false, message)             end -- SHA3-224
+Crypto.sha3_256   = function (message)                       return keccak((1600 - 2 * 256) / 8, 256 / 8, false, message)             end -- SHA3-256
+Crypto.sha3_384   = function (message)                       return keccak((1600 - 2 * 384) / 8, 384 / 8, false, message)             end -- SHA3-384
+Crypto.sha3_512   = function (message)                       return keccak((1600 - 2 * 512) / 8, 512 / 8, false, message)             end -- SHA3-512
+Crypto.shake128   = function (digest_size_in_bytes, message) return keccak((1600 - 2 * 128) / 8, digest_size_in_bytes, true, message) end -- SHAKE128
+Crypto.shake256   = function (digest_size_in_bytes, message) return keccak((1600 - 2 * 256) / 8, digest_size_in_bytes, true, message) end -- SHAKE256
+-- HMAC:
+Crypto.hmac       = hmac  -- HMAC(hash_func, key, message) is applicable to any hash function from this module except SHAKE* and BLAKE*
+-- misc utilities:
+Crypto.hex_to_bin    = hex_to_bin     -- converts hexadecimal representation to binary string
+Crypto.bin_to_hex    = bin_to_hex     -- converts binary string to hexadecimal representation
+Crypto.base64_to_bin = base64_to_bin  -- converts base64 representation to binary string
+Crypto.bin_to_base64 = bin_to_base64  -- converts binary string to base64 representation
+-- old style names for backward compatibility:
+Crypto.hex2bin       = hex_to_bin
+Crypto.bin2hex       = bin_to_hex
+Crypto.base642bin    = base64_to_bin
+Crypto.bin2base64    = bin_to_base64
+-- BLAKE2 hash functions:
+Crypto.blake2b  = blake2b   -- BLAKE2b (message, key, salt, digest_size_in_bytes)
+Crypto.blake2s  = blake2s   -- BLAKE2s (message, key, salt, digest_size_in_bytes)
+Crypto.blake2bp = blake2bp  -- BLAKE2bp(message, key, salt, digest_size_in_bytes)
+Crypto.blake2sp = blake2sp  -- BLAKE2sp(message, key, salt, digest_size_in_bytes)
+Crypto.blake2xb = blake2xb  -- BLAKE2Xb(digest_size_in_bytes, message, key, salt)
+Crypto.blake2xs = blake2xs  -- BLAKE2Xs(digest_size_in_bytes, message, key, salt)
+-- BLAKE2 aliases:
+Crypto.blake2      = blake2b
+Crypto.blake2b_160 = function (message, key, salt) return blake2b(message, key, salt, 20) end -- BLAKE2b-160
+Crypto.blake2b_256 = function (message, key, salt) return blake2b(message, key, salt, 32) end -- BLAKE2b-256
+Crypto.blake2b_384 = function (message, key, salt) return blake2b(message, key, salt, 48) end -- BLAKE2b-384
+Crypto.blake2b_512 = blake2b                                                      -- 64       -- BLAKE2b-512
+Crypto.blake2s_128 = function (message, key, salt) return blake2s(message, key, salt, 16) end -- BLAKE2s-128
+Crypto.blake2s_160 = function (message, key, salt) return blake2s(message, key, salt, 20) end -- BLAKE2s-160
+Crypto.blake2s_224 = function (message, key, salt) return blake2s(message, key, salt, 28) end -- BLAKE2s-224
+Crypto.blake2s_256 = blake2s                                                      -- 32       -- BLAKE2s-256
+-- BLAKE3 hash function
+Crypto.blake3            = blake3             -- BLAKE3    (message, key, digest_size_in_bytes)
+Crypto.blake3_derive_key = blake3_derive_key  -- BLAKE3_KDF(key_material, context_string, derived_key_size_in_bytes)

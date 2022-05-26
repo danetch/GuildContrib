@@ -1,3 +1,72 @@
+---- adapting for wow the library from Phil Leblanc, thanks Phil for all the good work.
+-- this means going from LUA 5.3 bitwise operator, to pure lua bitwise operations using Purelua-bitwise
+
+
+local Major, Minor = "ec25519-1.0", 1
+local ec25519, oldMinor = LibStub:NewLibrary(Major,Minor)
+if not ec25519 then return end
+local Btwsr = LibStub('PL-Bitwise-1.0')
+------------------------------------------------------------
+--[[
+	BIT.tobit(x) --> z
+  
+    Similar to function in BitOp.
+    
+  BIT.tohex(x, n)
+  
+    Similar to function in BitOp.
+  
+  BIT.band(x, y) --> z
+  
+    Similar to function in Lua 5.2 and BitOp but requires two arguments.
+  
+  BIT.bor(x, y) --> z
+  
+    Similar to function in Lua 5.2 and BitOp but requires two arguments.
+
+  BIT.bxor(x, y) --> z
+  
+    Similar to function in Lua 5.2 and BitOp but requires two arguments.
+  
+  BIT.bnot(x) --> z
+  
+    Similar to function in Lua 5.2 and BitOp.
+
+  BIT.lshift(x, disp) --> z
+  
+    Similar to function in Lua 5.2 (warning: BitOp uses unsigned lower 5 bits of shift),
+  
+  BIT.rshift(x, disp) --> z
+  
+    Similar to function in Lua 5.2 (warning: BitOp uses unsigned lower 5 bits of shift),
+
+  BIT.extract(x, field [, width]) --> z
+  
+    Similar to function in Lua 5.2.
+  
+  BIT.replace(x, v, field, width) --> z
+  
+    Similar to function in Lua 5.2.
+  
+  BIT.bswap(x) --> z
+  
+    Similar to function in Lua 5.2.
+
+  BIT.rrotate(x, disp) --> z
+  BIT.ror(x, disp) --> z
+  
+    Similar to function in Lua 5.2 and BitOp.
+
+  BIT.lrotate(x, disp) --> z
+  BIT.rol(x, disp) --> z
+
+    Similar to function in Lua 5.2 and BitOp.
+  
+  BIT.arshift
+  
+    Similar to function in Lua 5.2 and BitOp.	
+]]
+
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 
 ------------------------------------------------------------
@@ -20,6 +89,8 @@ and function names have been conserved as much as possible.
 
 -- set25519() not used
 
+
+
 local function car25519(o)
 	local c
 	for i = 1, 16 do
@@ -34,17 +105,17 @@ local function car25519(o)
 		else
 			o[1] = o[1] + 38 * (c - 1)
 		end
-		o[i] = o[i] - (c << 16)
+		o[i] = o[i] - (Btwsr.M.lshift(c, 16))
 	end
 end --car25519()
 
 local function sel25519(p, q, b)
-	local c = ~(b-1)
+	local c = Btwsr.M.bnot(b-1)
 	local t
 	for i = 1, 16 do
-		t = c & (p[i] ~ q[i])
-		p[i] = p[i] ~ t
-		q[i] = q[i] ~ t
+		t = Btwsr.M.band(c,Btwsr.M.bxor(p[i],q[i]))
+		p[i] = Btwsr.M.bxor(p[i], t)
+		q[i] = Btwsr.M.bxor(q[i], t)
 	end
 end --sel25519
 
@@ -302,18 +373,28 @@ a common session key (for a symmetric encryption algorithm).
   
   
 ]]
+---- making the api available 
+
+ec25519.crypto_scalarmult = crypto_scalarmult
+ec25519.crypto_scalarmult_base = crypto_scalarmult_base
+ec25519.scalarmult = scalarmult
+ec25519.base = base
 
 
-return {
-	crypto_scalarmult = crypto_scalarmult,
-	crypto_scalarmult_base = crypto_scalarmult_base,
+
+
+
+------------ old return -------------
+----return {
+----	crypto_scalarmult = crypto_scalarmult,
+----	crypto_scalarmult_base = crypto_scalarmult_base,
 	--
 	-- convenience function and definition
 	--
-	scalarmult = scalarmult,
-	base = base,
+-----	scalarmult = scalarmult,
+----	base = base,
 	--
-}
+----}
  -- end of ec25519 module
 
 
