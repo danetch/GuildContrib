@@ -1,7 +1,10 @@
 -- this is the library that takes care of the ledgers.
 -- it decrypts them, it sorts which one we will keep
--- the crypto library is the thing that does Crypto.
-local encryptor = LibStub("Crypto-1.0")
+-- the crypto library is the thing that does hashing algorythm
+-- the curve library does elliptic curves
+
+local crypto = LibStub("Crypto-1.0")
+local curve = LibStub("ec25519-1.0")
 local db
 local ledger
 local Transaction = {
@@ -13,9 +16,9 @@ local Transaction = {
     hash
 }
 
-local function computeHash(transaction)
-    if transaction.itemId == 0 or transaction.quantity == 0 or encryptor == nil then return end
-    return encryptor.handler.blake3(transaction.asString())
+local function SignTransaction(transaction, sk)
+    if transaction.itemId == 0 or transaction.quantity == 0 or curve == nil then return end
+    return curve.scalarmult(crypto.blake3(transaction.asString()), sk)
 end
 local function Transaction:new(o)
     o = o or {}
@@ -36,19 +39,19 @@ local function Transaction:asString()
     return s
 end
 
-local Major, Minor = "Ledger-1.0", 1 
-local Ledger, oldMinor = LibStub:NewLibrary(Major,Minor)
-if not Ledger then return end
+local Major, Minor = "Accountant-1.0", 1 
+local Accountant, oldMinor = LibStub:NewLibrary(Major,Minor)
+if not Accountant then return end
 -- init ledger !
 -- we must create the ledger if it doesn't exists already.
 -- we must synchronize the ledgers if need be
 -- 
-local function Ledger:initialize(database)
-    if not encryptor then return end
-    if not database then return end
+local function Accountant:initialize(database)
+    if not crypto then return end
+    if not curve then return end 
     local presenceID, battleTag, toonID, currentBroadcast, bnetAFK, bnetDND, isRIDEnabled  = BNGetInfo()
     db = database
-    
+    local currentLedgerVersion = GetLedger().version
 end
 -- decrypt ledger and return it as a nice table
 local function GetLedger()
@@ -73,8 +76,8 @@ local function SynchronizeLedgers(...)
     local bigmama -- huge table with all transactions
     -- first put them all in ( can we see in advance what is different ?)
 
-    for eLedger in ... do
-        ledger = decryptLedger(eLedger)
+    for EncryptedLedger in ... do
+        ledger = decryptLedger(EncryptedLedger)
         for transaction in ledger.transactions do
             if not bigmama[transaction.id] then bigmama[transaction.id] = transaction
             else 

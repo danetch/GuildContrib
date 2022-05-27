@@ -130,29 +130,31 @@ local function pack25519(o, n)
 	for _ = 1, 2 do
 		m[1] = t[1] - 0xffed
 		for i = 2, 15 do
-			m[i] = t[i] - 0xffff - ((m[i-1] >> 16) & 1)
-			m[i-1] = m[i-1] & 0xffff
+			m[i] = t[i] - 0xffff - Btwsr.M.band(Btwsr.M.rshift(m[i-1], 16), 1)
+			m[i-1] = Btwsr.M.band(m[i-1], 0xffff)
 		end
-		m[16] = t[16] - 0x7fff - ((m[15] >> 16) & 1)
-		b = (m[16] >> 16) & 1
-		m[15] = m[15] & 0xffff
+		m[16] = t[16] - 0x7fff - Btwsr.M.band(Btwsr.M.rshift(m[15],16), 1)
+		b = Btwsr.M.band(Btwsr.M.rshift(m[16], 16) , 1)
+		m[15] = Btwsr.M.band(m[15], 0xffff)
 		sel25519(t, m, 1-b)
 	end
 	for i = 1, 16 do
-		o[2*i-1] = t[i] & 0xff
-		o[2*i] = t[i] >> 8
+		o[2*i-1] = Btwsr.M.band(t[i], 0xff)
+		o[2*i] = Btwsr.M.rshift(t[i], 8)
 	end
 end -- pack25519
 
 -- neq25519() not used
 -- par25519() not used
 
+-- ensure Pure lua bitwise usage there as well
+
 local function unpack25519(o, n)
 	-- out o[16], in n[32]
 	for i = 1, 16 do
-		o[i] = n[2*i-1] + (n[2*i] << 8)
+		o[i] = n[2*i-1] + Btwsr.M.lshift(n[2*i] , 8)
 	end
-	o[16] = o[16] & 0x7fff
+	o[16] = Btwsr.M.band(o[16], 0x7fff)
 end -- unpack25519
 
 local function A(o, a, b) --add
@@ -207,8 +209,8 @@ local function crypto_scalarmult(q, n, p)
 	local e = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 	local f = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 	for i = 1, 31 do z[i] = n[i] end
-	z[32] = (n[32] & 127) | 64
-	z[1] = z[1] & 248
+	z[32] = Btwsr.M.bor(Btwsr.M.band(n[32], 127), 64)
+	z[1] = Btwsr.M.band(z[1], 248)
 --~ 	pt(z)
 	unpack25519(x, p)
 --~ 	pt(x)
@@ -221,7 +223,7 @@ local function crypto_scalarmult(q, n, p)
 	a[1] = 1
 	d[1] = 1
 	for i = 254, 0, -1 do
-		local r = (z[(i>>3)+1] >> (i & 7)) & 1
+		local r = Btwsr.M.band(Btwsr.M.rshift(z[Btwsr.M.rshift(i,3)+1], Btwsr.M.band(i, 7)), 1)
 		sel25519(a,b,r)
 		sel25519(c,d,r)
 		A(e,a,c)
