@@ -1,6 +1,6 @@
 -- this is the library that takes care of the ledgers.
 -- it decrypts them, it sorts which one we will keep
--- the crypto library is the thing that does hashing algorythm
+-- the crypto library is the thing that does hashing algorithm
 -- the curve library does elliptic curves
 
 local crypto = LibStub("Crypto-1.0")
@@ -10,10 +10,10 @@ local ledger
 local Transaction = {
     id = 0,
     q = 0,
-    pHash,
+    pSignature,
     tDate,
     bTag,
-    hash
+    signature
 }
 
 local function SignTransaction(transaction, sk)
@@ -88,6 +88,12 @@ local function SynchronizeLedgers(...)
     end
 end
 
+local Accountant:createIdentity(pwd)
+{
+    ---- create and save a private key based on a pwd
+    ----
+
+}
 
 
 
