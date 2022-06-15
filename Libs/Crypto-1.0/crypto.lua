@@ -5621,6 +5621,7 @@ block_size_for_HMAC = {
    [sha.sha3_512]   =  72,  -- (1600 - 2 * 512) / 8
 }
 -- changing here the way the module work to enable using it in wow
+-- local sha = {
 -- return sha
 
 Crypto.md5        = md5                                                                                                                   -- MD5

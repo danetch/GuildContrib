@@ -8,7 +8,7 @@ if not ec25519 then return end
 local Btwsr = LibStub('PL-Bitwise-1.0')
 ------------------------------------------------------------
 --[[
-	BIT.tobit(x) --> z
+  BIT.tobit(x) --> z
   
     Similar to function in BitOp.
     
