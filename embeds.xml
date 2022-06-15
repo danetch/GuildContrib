@@ -8,6 +8,6 @@
   <Include file="Libs\AceDB-3.0\AceDB-3.0.xml"/> 
   <Include file="Libs\AceEvent-3.0\AceEvent-3.0.xml"/>
   <Include file="Libs\AceGUI-3.0\AceGUI-3.0.xml"/>
-  <Include file="Libs\Sha2-9.0\Sha2-9.0.xml"/>
-  <Include file="Libs\BCHelper-1.0\BCHelper-1.0.xml"/>
+  <Include file="Libs\Crypto-1.0\Crypto-1.0.xml"/>
+  <Include file="Libs\Accountant-1.0\Accountant-1.0.xml"/>
 </Ui>
