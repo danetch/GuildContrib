@@ -1,5 +1,5 @@
 GuildContrib = LibStub("AceAddon-3.0"):NewAddon("GuildContrib","AceConsole-3.0","AceEvent-3.0", "AceComm-3.0")
-
+local Accountant = LibStub("Accountant-1.0")
  
 function GuildContrib:OnEnable()
     -- Called when the addon is enabled
@@ -14,18 +14,18 @@ end
 local function showSubscriptionCreationPanel()
 end   
 
--- prefix to broadcast the local lefger version
-local mPrefixLedgerVersion = "GC_LV"
--- prefix to require ledger from someone (if ledger is outdated)
-local mPrefixRequestLedger = "GC_RL"
+-- prefix to broadcast the local ledger version
+GuildContrib.mPrefixLedgerVersion = "GC_LV"
+-- prefix to require ledger from someone
+GuildContrib.mPrefixRequestLedger = "GC_RL"
 -- prefix to send the ledger to someone
-local mPrefixSendLedger = "GC_SL"
+GuildContrib.mPrefixSendLedger = "GC_SL"
 -- prefix to broadcast the contribution configuration version
-local mPrefixContConfigVersion = "GC_CCV"
+GuildContrib.mPrefixContConfigVersion = "GC_CCV"
 -- prefix to require the new configuration (beware you will need to ensure the configuration is from a trusted party)
-local mPrefixRequestCC = "GC_RCC"
+GuildContrib.mPrefixRequestCC = "GC_RCC"
 -- prefix to send the cc
-local mPrefixSendCC = "GC_SCC"
+GuildContrib.mPrefixSendCC = "GC_SCC"
 local function createOptions()
     local opt = {
         name = "Guild Contribution Manager",
@@ -51,23 +51,14 @@ local function createOptions()
 end
 function GuildContrib:NAME_OF_EVENT()
 end
-function GuildContrib:OnCommReceived(prefix, message, distribution, sender)
-    -- process the incomming message
-end
--- register for events 
-GuildContrib:RegisterEvent("NAME_OF_EVENT")
---register for communication with the following prefixes
-GuildContrib:RegisterComm(mPrefixLedgerVersion)
-GuildContrib:RegisterComm(mPrefixRequestLedger)
-GuildContrib:RegisterComm(mPrefixSendLedger)
-GuildContrib:RegisterComm(mPrefixContConfigVersion)
-GuildContrib:RegisterComm(mPrefixRequestCC)
-GuildContrib:RegisterComm(mPrefixSendCC)
+
 function GuildContrib:OnCommReceived(prefix, message, distribution, sender)
     -- process the incomming message
     if prefix == mPrefixLedgerVersion then
-        -- broadcast your LedgerVersion    
-        GuildContrib:SendCommMessage(GuildContrib.db.ledger.version)
+        -- we are receiving the ledgerversion from someone
+        Accountant:processVersionBC(message.version,
+    end
+
 end
 -- process the event "nameofevent"
 --function GuildContrib:NAME_OF_EVENT()
@@ -81,16 +72,23 @@ function GuildContrib:OnInitialize()
     -- Code that you want to run when the addon is first loaded goes here.
     -- this code is run only when everything is loaded.
     self.db = LibStub("AceDB-3.0"):New("GuildContribDB")
-    -- choisir 
+    -- les options de conf
     LibStub("AceConfig-3.0"):RegisterOptionsTable("Guild Contribution Manager", createOptions(), {"gcm"})
-    options.var.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-    BCHelper.OnInitialize(self.db)
-    -- send ledger version to the guild addon channel
-    GuildContrib:SendCommMessage(mPrefix, GuildContrib.db.ledger.version, "GUILD")
+    --- chelou : options.var.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
+    -- register for events 
+    GuildContrib:RegisterEvent("NAME_OF_EVENT")
+    --register for communication with the following prefixes
+    GuildContrib:RegisterComm(mPrefixLedgerVersion)
+    GuildContrib:RegisterComm(mPrefixRequestLedger)
+    GuildContrib:RegisterComm(mPrefixSendLedger)
+    GuildContrib:RegisterComm(mPrefixContConfigVersion)
+    GuildContrib:RegisterComm(mPrefixRequestCC)
+    GuildContrib:RegisterComm(mPrefixSendCC)
+    Accountant:OnInitialize(self)
+        
 end
 
-local Accountant = LibStub("Accountant-1.0")
-Accountant.OnInitialize(GuildContrib.db)
+
 
 --QuickSpec
 

@@ -2,7 +2,7 @@
 -- this means going from LUA 5.3 bitwise operator, to pure lua bitwise operations using Purelua-bitwise
 
 
-local Major, Minor = "ec25519-1.0", 1
+local Major, Minor = "Ec25519-1.0", 1
 local ec25519, oldMinor = LibStub:NewLibrary(Major,Minor)
 if not ec25519 then return end
 local Btwsr = LibStub('PL-Bitwise-1.0')
