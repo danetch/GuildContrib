@@ -61,9 +61,8 @@ function Accountant:initialize(addon)
     local presenceID, battleTag, toonID, currentBroadcast, bnetAFK, bnetDND, isRIDEnabled  = BNGetInfo()
     Addon = addon
     Ledger = GetLedger()
-    local currentLedgerVersion = GetLedgerVersion()
     -- start asking everyone for his version
-    Addon:SendCommMessage(Addon.mPrefixLedgerVersion,currentLedgerVersion,"GUILD")
+    Addon:SendCommMessage(Addon.mPrefixLedgerVersion,Ledger.version,"GUILD")
 
 end
 -- decrypt ledger and return it as a nice table
@@ -74,15 +73,10 @@ local function GetLedger()
     -- ledger probably gets a transaction id per transaction, agreed upon by ranks or consensus.
     -- ledger.version = integer.
     -- ledger
-    if not Addon.db.global.ledger then return end
-    return ledger 
+    
+    return Addon.db.global.ledger 
 end
-local function GetLedgerVersion()
-    if not db.global.ledger then return 0
-    else
-        return db.global.ledger.version
-    end
-end
+
 -- this should take any ledgers provided by guildies, dedup entries, and recreate a final ledger.
 local function SynchronizeLedgers(...)
     local bigmama -- huge table with all transactions
