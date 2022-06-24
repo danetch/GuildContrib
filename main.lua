@@ -1,5 +1,6 @@
 GuildContrib = LibStub("AceAddon-3.0"):NewAddon("GuildContrib","AceConsole-3.0","AceEvent-3.0", "AceComm-3.0")
 local Accountant = LibStub("Accountant-1.0")
+local AceGUI = LibStub("AceGUI-3.0")
  
 function GuildContrib:OnEnable()
     -- Called when the addon is enabled
@@ -49,14 +50,56 @@ local function createOptions()
         }
     return opt
 end
-function GuildContrib:NAME_OF_EVENT()
+
+
+
+
+
+function qualifyGBT()
+    local tab = GetCurrentGuildBankTab()
+    local name, icon, isViewable, canDeposit, numWithdrawals, remainingWithdrawals, filtered  = GetGuildBankTabInfo(tab)
+    return numWithdrawals==0 and isViewable and canDeposit
+
 end
+
+function contribute()
+end
+
+
+function displayContributionFrame()
+    -- ATTACH ACE ADDON SHIT.
+    -- Create a container frame
+    local f = AceGUI:Create("Frame")
+    f:SetCallback("OnClose",function(widget) AceGUI:Release(widget) end)
+    f:SetTitle("Contribution Summary")
+    f:SetStatusText("Currently completely unable to work out how to make this dynamic")
+    f:SetLayout("Flow")
+    local btn = AceGUI:Create("Button")
+    btn:SetText("Contribute!")
+    btn:SetCallback("OnClick",contribute())
+    f:addChild(btn)
+end
+
+
+function GuildContrib:GUILDBANKFRAME_OPENED()
+    -- qualify the bank tab 
+    if qualifyGBT() then
+        -- display the contribution frame
+        displayContributionFrame()
+    end
+    -- otherwise we can't do jack shit
+
+end
+
+
+
+
 
 function GuildContrib:OnCommReceived(prefix, message, distribution, sender)
     -- process the incomming message
-    if prefix == mPrefixLedgerVersion then
+    if prefix == mPrefixLedgerVersion qnd distribution =="GUILD" then
         -- we are receiving the ledgerversion from someone
-        Accountant:processVersionBC(message.version,
+        Accountant:processLedgerVersion(message.version)
     end
 
 end
@@ -75,8 +118,6 @@ function GuildContrib:OnInitialize()
     -- les options de conf
     LibStub("AceConfig-3.0"):RegisterOptionsTable("Guild Contribution Manager", createOptions(), {"gcm"})
     --- chelou : options.var.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-    -- register for events 
-    GuildContrib:RegisterEvent("NAME_OF_EVENT")
     --register for communication with the following prefixes
     GuildContrib:RegisterComm(mPrefixLedgerVersion)
     GuildContrib:RegisterComm(mPrefixRequestLedger)
@@ -85,6 +126,11 @@ function GuildContrib:OnInitialize()
     GuildContrib:RegisterComm(mPrefixRequestCC)
     GuildContrib:RegisterComm(mPrefixSendCC)
     Accountant:OnInitialize(self)
+    -- Register for events here // Will be handle by function addon:name_of_event()
+    -- Register for opening the guild bank.
+    GuildContrib:RegisterEvent("GUILDBANKFRAME_OPENED")
+
+
         
 end
 

@@ -55,12 +55,13 @@ if not Accountant then return end
 -- we must create the ledger if it doesn't exists already.
 -- we must synchronize the ledgers if need be
 -- 
-local function Accountant:initialize(addon)
+function Accountant:initialize(addon)
     if not crypto then return end
     if not curve then return end 
     local presenceID, battleTag, toonID, currentBroadcast, bnetAFK, bnetDND, isRIDEnabled  = BNGetInfo()
     Addon = addon
-    local currentLedgerVersion = GetLedger().version
+    Ledger = GetLedger()
+    local currentLedgerVersion = GetLedgerVersion()
     -- start asking everyone for his version
     Addon:SendCommMessage(Addon.mPrefixLedgerVersion,currentLedgerVersion,"GUILD")
 
@@ -76,7 +77,7 @@ local function GetLedger()
     if not Addon.db.global.ledger then return end
     return ledger 
 end
-local function GetledgerVersion()
+local function GetLedgerVersion()
     if not db.global.ledger then return 0
     else
         return db.global.ledger.version
@@ -89,7 +90,7 @@ local function SynchronizeLedgers(...)
     -- directed Cyclic graphs ?
 
     for EncryptedLedger in ... do
-        ledger = decryptLedger(EncryptedLedger)
+        Ledger = decryptLedger(EncryptedLedger)
         for transaction in ledger.transactions do
             if not bigmama[transaction.id] then bigmama[transaction.id] = transaction
             else 
@@ -100,6 +101,12 @@ local function SynchronizeLedgers(...)
 
     end
 end
+
+function Accountant:processLedgerVersion(remoteVersion)
+    -- compare both version and decide how to proceed.
+    if remoteVersion == self.Ledger.version
+end
+
 
 local Accountant:createIdentity(pwd)
 {
