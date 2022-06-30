@@ -10,7 +10,8 @@ function GuildContrib:OnDisable()
 end
 local function getRankValues()
     -- GET the guild ranks, then decide if the addon wielder is an officer rank <=1
-    -- 
+    -- ddzdz
+
 end
 local function showSubscriptionCreationPanel()
 end   
@@ -44,21 +45,16 @@ local function createOptions()
             }
         },
         reminder = {name},
-        
-
-
         }
     return opt
 end
 
-
-
-
-
 function qualifyGBT()
     local tab = GetCurrentGuildBankTab()
+    QueryGuildBankTab(tab)-- calling this because GetGuildBankTabInfo is bugged if you don't.
     local name, icon, isViewable, canDeposit, numWithdrawals, remainingWithdrawals, filtered  = GetGuildBankTabInfo(tab)
-    return numWithdrawals==0 and isViewable and canDeposit
+    local canDeposit = IsGuildLeader() or (numWithdrawals==0 and isViewable and canDeposit)
+    return canDeposit
 
 end
 
@@ -66,7 +62,7 @@ function contribute()
 end
 
 
-function displayContributionFrame()
+function displayContributionFrame(GuildBankTabIsOk)
     -- ATTACH ACE ADDON SHIT.
     -- Create a container frame
     local f = AceGUI:Create("Frame")
@@ -74,20 +70,19 @@ function displayContributionFrame()
     f:SetTitle("Contribution Summary")
     f:SetStatusText("Currently completely unable to work out how to make this dynamic")
     f:SetLayout("Flow")
-    local btn = AceGUI:Create("Button")
-    btn:SetText("Contribute!")
-    btn:SetCallback("OnClick",contribute())
-    f:addChild(btn)
+    if GuildBankTabIsOk then
+        local btn = AceGUI:Create("Button")
+        btn:SetText("Contribute!")
+        btn:SetCallback("OnClick",contribute())
+        f:addChild(btn)
+    end
+
 end
 
 
 function GuildContrib:GUILDBANKFRAME_OPENED()
     -- qualify the bank tab 
-    if qualifyGBT() then
-        -- display the contribution frame
-        displayContributionFrame()
-    end
-    -- otherwise we can't do jack shit
+    displayContributionFrame(qualifyGBT())
 
 end
 
@@ -129,10 +124,8 @@ function GuildContrib:OnInitialize()
     -- Register for events here // Will be handle by function addon:name_of_event()
     -- Register for opening the guild bank.
     GuildContrib:RegisterEvent("GUILDBANKFRAME_OPENED")
-
-
-        
 end
+
 
 
 
@@ -141,10 +134,18 @@ end
 -- Players can click on a button to contribute for the current timespan, when they get to the guild bank
 -- Players can see at a glance their contribution status for the current timespan.
 -- Players can click a button to see a window with players in y axis, timespans on x axis, and contributions.
+-- The contribution frame on the guild bank tab doesn't show if the ledgers haven't been fully synchronized.
+-- I nneed to understand directed acyclic graphs to understand how to implement one simply : I need to recognize individual items, and their place in the hierarchy.
+-- If an item is entirely orphanned, for instance Alan Boris and Conrad are excahnging files, then they log off, 
+-- and only Conrad logs back in (or not) when Daniel, Eve and Fernand get in the game
+-- Then Daniel Eve and Fernand will start out of Conrad's version (or no version at all), and will add to that version.
+
+-- if you don't have a ledger, and there is no one connected, and you are not the guild master, then the addon should ask that you wait for someone 
+-- from your guild that has a ledger to show up.
 -- A timespan is configured by the guildmaster
 -- Players have to make the deposit on a deposit only tab, unless rank < X.
 -- each deposit is a transaction in a ledger
--- the db is a simplistic blockchain / accountant is the ledger handler
+-- accountant is the ledger handler, ledgers are transactionchains
 -- We use ECC : PLC EC25519 /  Base is 9 in EC 22519. Then it is "just" scalar multiplications. https://github.com/philanc/plc/blob/master/plc/ec25519.lua
         -- generate a 32 bytes random string : this is our secretkey (which is also a 256 bit number :))))
         -- scalarmultiply the base to get the public key.
