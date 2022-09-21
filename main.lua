@@ -94,9 +94,6 @@ end
 function contribute()
 end
 
-
-
-
 function displayContributionFrame(GuildBankTabIsOk)
     -- ATTACH ACE ADDON SHIT.
     -- Create a container frame
@@ -135,12 +132,27 @@ end
 
 function GuildContrib:OnCommReceived(prefix, message, distribution, sender)
     -- process the incomming message
-    if prefix == mPrefixLedgerVersion qnd distribution =="GUILD" then
+    if prefix == mPrefixLedgerVersion and distribution =="GUILD" then
         -- we are receiving the ledgerversion from someone
-        Accountant:processLedgerVersion(message.version)
-    end
+        if Accountant:isRemoteBetter(message.version) then
+            self.GetRemoteLedger(sender) -- essentially send an mPrefixRequestLedger
+        else
+            self.BroadcastLedgerVersion(Accountant.GetLedger.version)
+        end
+    elseif prefix == mPrefixContConfigVersion and distribution == "OFFICERS" then
 
+        ---love give this guy Contribution Config version
+    elseif prefix == mPrefixRequestLedger then
+        --- give this guy a ledger
+    elseif prefix == mPrefixRequestCC then
+        -- give it the contributoin config
+    elseif prefix == mPrefixSendCC then
+        -- receive gracefully a contribution config !
+    elseif prefix == mPrefixSendLedger then
+        -- receive nicely a LEDGER ! woohoo
+    end
 end
+function GuildContrib:SendCommMessage(prefix, text, distribution, target, prio, callbackFn, callbackArg)
 
 function getFDOBT()
     -- returns the First Deposit-Only Bank Tab index.
@@ -155,21 +167,21 @@ function GuildContrib:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("GuildContribDB")
     -- in case config doesn't yet exist on first install.
     if not self.db.factionrealm.config then 
-        self.db.factionrealm["config"] ={
+        self.db.factionrealm["config"] = {
             rank = 1,
             timespan = "month",
             -- this comes with an index and a structure that should contain the equivalence between members
             -- for instance an ID for the 1 feast, should have equivalence to X + Y + Z items.
             -- this is obvisouly a tree.
-            items = 
+            items = {
             -- feast q is the necessary quantity, each quantity in the children is per unit
-            {id=172043,q=11,contains={{id=173036,q=10},{id=173034,q=10},{172053=10,172055=10,173037=5}},
+            {id=172043,q=11,contains={{id=173036,q=10},{id=173034,q=10},{172053=10,172055=10,173037=5}}},
             -- Flask
-            {171276={q=,c={}}
+            {id=171276,q=10,contains={{id=,q=,contains={}}}}
             -- Potion
-            
-
-                
+            -- --- -- --
+            -- Oils
+            -- Armor
             },
             banktab = getFDOBT(),
             goldEquivalent = 10000
@@ -178,7 +190,8 @@ function GuildContrib:OnInitialize()
     end
     -- les options de conf
     LibStub("AceConfig-3.0"):RegisterOptionsTable("Guild Contribution Manager", createOptions(), {"gcm"})
-    self.BlizzDialog = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Profiles", "Profiles", "MyApplicationName");
+    self.BlizzDialog = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Profiles", "Profiles", "MyApplicationName")
+    Accountant:OnInitialize(self)
     --register for communication with the following prefixes
     GuildContrib:RegisterComm(mPrefixLedgerVersion)
     GuildContrib:RegisterComm(mPrefixRequestLedger)
@@ -207,15 +220,17 @@ end
 
 -- How to ensure forgery of a transaction is impossible ?
 -- anyone can write shit in the ledger, so there must be a mechanism that verifies that the actual action was performed.
--- or can we create signatures based on the when the item was received in the bag? 
 -- the addon's code can be compromised, and be changed to create fake transactions that never happened.
 -- EASY ! read the number of guild bank items after the transaction ! 
 -- and have it read by OTHERS ! so they must also have bad code, which is against the shit ! but that requires that people are at the guild bank to do this
--- OR some variation of this : read the amount of the good present in bank at the moment of the contribution, put it in the transaction, and put the new number in the transaction
+-- Read the amount of the good present in bank at the moment of the contribution, put it in the transaction, and put the new number in the transaction as well.
 -- The next person contributing will be the one validating the previous transaction by ensuring the amount that is advertised in the ledger is less or equal to the amount in the bank.
+-- if there are missing links, then the ledger can be reordered to contain the correct number.
 -- HOORAY it works : it means that there must be a validating mode for officers, to see and reconcile all pending transactions to validate, it means the transactions must be passed onto each others asap
 -- if there is a Lonely transaction, then insert it in the ledger where appropriate ? (where ?)
--- ledger is : {{base : items to be tracked + the count in bank},{transaction1 :{items: {id,amountfrom,amountto},validation:{name,publickey,amountinbankwhenvalidatedencryptedbykey}]}
+-- ledger is : {
+--    {base : items to be tracked + the count in bank},
+--    {transaction1 :{items: {id,amountfrom,amountto},validation:{name,publickey,amountinbankwhenvalidatedencryptedbykey}]}
 -- 
 -- if you don't have a ledger, and there is no one connected, and you are not the guild master, then the addon should ask that you wait for someone 
 -- from your guild that has a ledger to show up.

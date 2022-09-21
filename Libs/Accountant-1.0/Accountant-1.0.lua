@@ -8,6 +8,13 @@ local curve = LibStub("Ec25519-1.0")
 local Addon
 local Ledger -- this is the current ledger object.
 
+-- ledger is : {
+    --    {config? : items to be tracked + the count in bank} why ????
+    --    {transactions :[{id,amount,bankbefore,bankafter,btag,publickey,signature}]}
+
+
+
+
 --[[
 local Transaction = {
     id = 0, -- if 0 then it is gold
@@ -96,9 +103,9 @@ local function SynchronizeLedgers(...)
     end
 end
 
-function Accountant:processLedgerVersion(remoteVersion)
+function Accountant:isRemoteBetter(remoteVersion)
     -- compare both version and decide how to proceed.
-    if remoteVersion == self.Ledger.version
+    return remoteVersion > self.Ledger.version
 end
 
 
