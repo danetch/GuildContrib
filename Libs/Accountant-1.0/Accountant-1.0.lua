@@ -8,6 +8,13 @@ local curve = LibStub("Ec25519-1.0")
 local Addon
 local Ledger -- this is the current ledger object.
 
+-- ledger is : {
+    --    {config? : items to be tracked + the count in bank} why ????
+    --    {transactions :[{id,amount,bankbefore,bankafter,btag,publickey,signature}]}
+
+
+
+
 --[[
 local Transaction = {
     id = 0, -- if 0 then it is gold
@@ -55,14 +62,14 @@ if not Accountant then return end
 -- we must create the ledger if it doesn't exists already.
 -- we must synchronize the ledgers if need be
 -- 
-local function Accountant:initialize(addon)
+function Accountant:initialize(addon)
     if not crypto then return end
     if not curve then return end 
     local presenceID, battleTag, toonID, currentBroadcast, bnetAFK, bnetDND, isRIDEnabled  = BNGetInfo()
     Addon = addon
-    local currentLedgerVersion = GetLedger().version
+    Ledger = GetLedger()
     -- start asking everyone for his version
-    Addon:SendCommMessage(Addon.mPrefixLedgerVersion,currentLedgerVersion,"GUILD")
+    Addon:SendCommMessage(Addon.mPrefixLedgerVersion,Ledger.version,"GUILD")
 
 end
 -- decrypt ledger and return it as a nice table
@@ -73,15 +80,10 @@ local function GetLedger()
     -- ledger probably gets a transaction id per transaction, agreed upon by ranks or consensus.
     -- ledger.version = integer.
     -- ledger
-    if not Addon.db.global.ledger then return end
-    return ledger 
+    
+    return Addon.db.global.ledger 
 end
-local function GetledgerVersion()
-    if not db.global.ledger then return 0
-    else
-        return db.global.ledger.version
-    end
-end
+
 -- this should take any ledgers provided by guildies, dedup entries, and recreate a final ledger.
 local function SynchronizeLedgers(...)
     local bigmama -- huge table with all transactions
@@ -89,7 +91,7 @@ local function SynchronizeLedgers(...)
     -- directed Cyclic graphs ?
 
     for EncryptedLedger in ... do
-        ledger = decryptLedger(EncryptedLedger)
+        Ledger = decryptLedger(EncryptedLedger)
         for transaction in ledger.transactions do
             if not bigmama[transaction.id] then bigmama[transaction.id] = transaction
             else 
@@ -100,6 +102,12 @@ local function SynchronizeLedgers(...)
 
     end
 end
+
+function Accountant:isRemoteBetter(remoteVersion)
+    -- compare both version and decide how to proceed.
+    return remoteVersion > self.Ledger.version
+end
+
 
 local Accountant:createIdentity(pwd)
 {
