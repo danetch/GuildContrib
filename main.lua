@@ -56,7 +56,7 @@ function GuildContrib:OnCommReceived(prefix, message, distribution, sender)
     -- process the incomming message
     if prefix == mPrefixLedgerVersion then
         -- we are receiving the ledgerversion from someone
-        Accountant:processVersionBC(message.version,
+        Accountant:processVersionBC(message.version)
     end
 
 end
